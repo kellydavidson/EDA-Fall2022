@@ -126,6 +126,8 @@ Run the first line of code below. Then, type in "long" and press `tab`. What hap
 
 What happens if there is a typo in your code? Type the following in the R window: Long_name_for_illustration longnameforillustration
 
+longnameforillustration
+
 ```{r}
 long_name_for_illustration <- 11
 
@@ -137,6 +139,8 @@ Within your R code, it is often useful to include notes about your workflow. So 
 
 ```{r}
 # I am demonstrating a comment here. 
+
+# 1 + 1
 
 1 + 1 # This is a simple math problem
 ```
@@ -256,9 +260,7 @@ For now, here are some ways to access the help tools in R:
 
 -   Navigate to the help pane in the notebook and type the function into the search bar.
 
-```{r}
-??seq
-```
+```{r}??seq```
 
 ## Tips and Tricks
 
