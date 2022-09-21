@@ -42,7 +42,7 @@ median(kelly_sequence)
 
 #3. is mean > median?
 
-
+isTRUE(mean(kelly_sequence) > median(kelly_sequence))
 
 ```
 
@@ -57,6 +57,13 @@ median(kelly_sequence)
 8.  Label the columns of your data frame with informative titles.
 
 ```{r}
+# 6.
+vector1 <- student_names <- c("Ashley" , "Brad" , "Claire" , "Dave")  #character
+vector2 <- test_scores <- c(98, 72 , 49 , 61)  #integer
+vector3 <- pass_fail <- c(TRUE , TRUE , FALSE , TRUE)  #logical
+
+#7.
+data_frame(vector1, vector2, vector3)
 
 ```
 
