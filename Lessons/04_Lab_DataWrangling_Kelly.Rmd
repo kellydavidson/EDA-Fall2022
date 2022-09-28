@@ -103,9 +103,14 @@ NTL.phys.data.ex3 <- NTL.phys.data %>%
   
 
 
-#Exercise 4: Using the data from part 3, a pipe and the summarise() function find the mean surface temperature (hints: you will need to add another filter for depth==0). Make sure you eliminate NAs before computing the means
+#Exercise 4: Using the data from part 3, a pipe and the summarize() function find the mean surface temperature (hints: you will need to add another filter for depth==0). Make sure you eliminate NAs before computing the means
+#highlight and press ctrl + f1 for help!!!!
 
-
+NTL.phys.data.ex4 <-
+  NTL.phys.data.ex3 %>%  
+  filter (depth == 0) %>% 
+  drop_na(temperature_C) %>% 
+  summarize(mean_surface_temp = mean(temperature_C))
   
 ```
 
@@ -116,8 +121,22 @@ For gather we will use `pivot_longer` and for spread we will use `pivot_wider`.
 ```{r}
 #Exercise 5: gather irradiance data (measured in the water column and measured on the deck of the sampling boat) into one column using pivot_longer
 
+NTL.phys.data.ex5 <-
+  NTL.phys.data %>% 
+  pivot_longer(
+    irradianceWater:irradianceDeck,
+    names_to = "irradiance" ,
+    values_to = "radiation"
+  )
 
 #Exercise 6: spread temperatureC into more than one column based on the depth
+
+NTL.phys.data.ex6 <-
+  NTL.phys.data %>% 
+  pivot_wider(
+    names_from = "depth",
+    values_from = "temperature_C"
+  )
 
 ```
 

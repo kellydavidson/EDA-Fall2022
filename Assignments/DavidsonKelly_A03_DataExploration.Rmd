@@ -33,10 +33,10 @@ The completed exercise is due on Sept 30th.
 getwd()
 
 #uploading & naming neonics dataset
-Neonics.data <- read.csv("./Data/Raw/ECOTOX_Neonicotinoids_Insects_raw.csv", stringsAsFactors = TRUE)
+Neonics.data <- read.csv("./EDA-Fall2022/Data/Raw/ECOTOX_Neonicotinoids_Insects_raw.csv", stringsAsFactors = TRUE)
 
 #uploading & naming litter dataset
-Litter.data <- read.csv("./Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv", stringsAsFactors = TRUE)
+Litter.data <- read.csv("./EDA-Fall2022/Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv", stringsAsFactors = TRUE)
 
 ```
 
