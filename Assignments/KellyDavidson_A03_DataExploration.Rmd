@@ -29,14 +29,14 @@ The completed exercise is due on Sept 30th.
 ```{r,  message = FALSE}
 #1.
 
-#checking current working directory and load tidyverse package
+# Checking current working directory and load tidyverse package
 getwd()
 library(tidyverse)
 
-#uploading & naming neonics dataset
+# Uploading & naming neonics dataset
 Neonics.data <- read.csv("./Data/Raw/ECOTOX_Neonicotinoids_Insects_raw.csv", stringsAsFactors = TRUE)
 
-#uploading & naming litter dataset
+# Uploading & naming litter dataset
 Litter.data <- read.csv("./Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv", stringsAsFactors = TRUE)
 
 ```
@@ -96,7 +96,7 @@ summary(Neonics.data$Species.Common.Name)
 8.  Concentrations are always a numeric value. What is the class of Conc.1..Author. in the dataset, and why is it not numeric?
 
 ```{r}
-#determining the class of column "Conc.1..Author." in the Neonics dataset
+#8. Determining the class of column "Conc.1..Author." in the Neonics dataset
 
 class(Neonics.data$Conc.1..Author.)
 
@@ -109,18 +109,26 @@ class(Neonics.data$Conc.1..Author.)
 9.  Using `geom_freqpoly`, generate a plot of the number of studies conducted by publication year.
 
 ```{r}
+#9. Generating a frequency line graph of the number of studies conducted by publication year
+
+ggplot(Neonics.data) +
+  geom_freqpoly(aes(x = Publication.Year), bins = 20)
 
 ```
 
 10. Reproduce the same graph but now add a color aesthetic so that different Test.Location are displayed as different colors.
 
 ```{r}
+#10. Adding to the frequency line graph in #9, include Test.Location as different colors
+
+ggplot(Neonics.data) +
+  geom_freqpoly(aes(x = Publication.Year, color = Test.Location), bins = 10)
 
 ```
 
 Interpret this graph. What are the most common test locations, and do they differ over time?
 
-> Answer:
+> Answer: The most common test locations are "Labs" and "Field natural" both of which increase greatly from 2000 to 2020. 
 
 11. Create a bar graph of Endpoint counts. What are the two most common end points, and how are they defined? Consult the ECOTOX_CodeAppendix for more information.
 
