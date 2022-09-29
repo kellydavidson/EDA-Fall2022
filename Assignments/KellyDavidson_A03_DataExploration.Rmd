@@ -31,6 +31,7 @@ The completed exercise is due on Sept 30th.
 
 # Checking current working directory and load tidyverse package
 getwd()
+#install.packages("tidyverse")
 library(tidyverse)
 
 # Uploading & naming neonics dataset
@@ -133,22 +134,40 @@ Interpret this graph. What are the most common test locations, and do they diffe
 11. Create a bar graph of Endpoint counts. What are the two most common end points, and how are they defined? Consult the ECOTOX_CodeAppendix for more information.
 
 ```{r}
+#11. Creating a bar graph of Endpoint counts
+
+ggplot(Neonics.data) +
+  geom_bar(aes(x = Endpoint))
 
 ```
 
-> Answer:
+> Answer: LOEL and NOEL
 
 ## Explore your data (Litter)
 
 12. Determine the class of collectDate. Is it a date? If not, change to a date and confirm the new class of the variable. Using the `unique` function, determine which dates litter was sampled in August 2018.
 
 ```{r}
+#12. Determining the class of "collectDate"
+
+class(Litter.data$collectDate)
+
+# "collectDate" is a factor, so changing it to a date and then confirming the new class of the variable
+
+Litter.data$collectDate <- as.Date(Litter.data$collectDate, format = "%m%d%Y")
+class(Litter.data$collectDate)
+
+# Determining which dates litter was sampled in August 2018 using the 'unique' function
+
+unique(Litter.data$collectDate, c(08/01/2018:08/30/2018))
 
 ```
 
 13. Using the `unique` function, determine how many plots were sampled at Niwot Ridge. How is the information obtained from `unique` different from that obtained from `summary`?
 
 ```{r}
+
+summary(Litter.data$collectDate)
 
 ```
 
@@ -157,12 +176,27 @@ Interpret this graph. What are the most common test locations, and do they diffe
 14. Create a bar graph of functionalGroup counts. This shows you what type of litter is collected at the Niwot Ridge sites. Notice that litter types are fairly equally distributed across the Niwot Ridge sites.
 
 ```{r}
+#14. Creating a bar graph of 'functionalGroup' counts
+
+ggplot(Litter.data) +
+  geom_bar(aes(x = functionalGroup))
 
 ```
 
 15. Using `geom_boxplot` and `geom_violin`, create a boxplot and a violin plot of dryMass by functionalGroup.
 
 ```{r}
+#15. Creating a boxplot of dryMass by functionalGroup
+
+ggplot(Litter.data) +
+  geom_boxplot(aes(x = functionalGroup, y = dryMass))
+
+
+#15. Creating a violin plot of dryMass by functionalGroup
+
+ggplot(Litter.data) +
+  geom_violin(aes(x = functionalGroup, y = dryMass),
+              draw_quantiles = c(0.25, 0.5, 0.75))
 
 ```
 
