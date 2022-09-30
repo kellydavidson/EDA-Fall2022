@@ -35,10 +35,10 @@ getwd()
 library(tidyverse)
 
 # Uploading & naming neonics dataset
-Neonics.data <- read.csv("./Data/Raw/ECOTOX_Neonicotinoids_Insects_raw.csv", stringsAsFactors = TRUE)
+Neonics <- read.csv("./Data/Raw/ECOTOX_Neonicotinoids_Insects_raw.csv", stringsAsFactors = TRUE)
 
 # Uploading & naming litter dataset
-Litter.data <- read.csv("./Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv", stringsAsFactors = TRUE)
+Litter <- read.csv("./Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv", stringsAsFactors = TRUE)
 
 ```
 
@@ -66,7 +66,7 @@ Litter.data <- read.csv("./Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv", 
 ```{r}
 #5. Determining the dimensions of the Neonics dataset
 
-dim(Neonics.data)
+dim(Neonics)
 
 #4623 rows and 30 columns
 
@@ -77,7 +77,7 @@ dim(Neonics.data)
 ```{r}
 #6. Using the 'summary' function on the "Effect" column to review the most common effects that are studied
 
-summary(Neonics.data$Effect)
+summary(Neonics$Effect)
 
 ```
 
@@ -88,7 +88,7 @@ summary(Neonics.data$Effect)
 ```{r}
 #7. Using the "summary' function to determine the 6 most commonly studied species (common name) in the dataset
 
-summary(Neonics.data$Species.Common.Name)
+summary(Neonics$Species.Common.Name)
 
 ```
 
@@ -99,7 +99,7 @@ summary(Neonics.data$Species.Common.Name)
 ```{r}
 #8. Determining the class of column "Conc.1..Author." in the Neonics dataset
 
-class(Neonics.data$Conc.1..Author.)
+class(Neonics$Conc.1..Author.)
 
 ```
 
@@ -112,7 +112,7 @@ class(Neonics.data$Conc.1..Author.)
 ```{r}
 #9. Generating a frequency line graph of the number of studies conducted by publication year
 
-ggplot(Neonics.data) +
+ggplot(Neonics) +
   geom_freqpoly(aes(x = Publication.Year), bins = 20)
 
 ```
@@ -122,8 +122,8 @@ ggplot(Neonics.data) +
 ```{r}
 #10. Adding to the frequency line graph in #9, include Test.Location as different colors
 
-ggplot(Neonics.data) +
-  geom_freqpoly(aes(x = Publication.Year, color = Test.Location), bins = 10)
+ggplot(Neonics) +
+  geom_freqpoly(aes(x = Publication.Year, color = Test.Location), bins = 20)
 
 ```
 
@@ -136,7 +136,7 @@ Interpret this graph. What are the most common test locations, and do they diffe
 ```{r}
 #11. Creating a bar graph of Endpoint counts
 
-ggplot(Neonics.data) +
+ggplot(Neonics) +
   geom_bar(aes(x = Endpoint))
 
 ```
@@ -150,16 +150,18 @@ ggplot(Neonics.data) +
 ```{r}
 #12. Determining the class of "collectDate"
 
-class(Litter.data$collectDate)
+class(Litter$collectDate)
 
 # "collectDate" is a factor, so changing it to a date and then confirming the new class of the variable
 
-Litter.data$collectDate <- as.Date(Litter.data$collectDate, format = "%m%d%Y")
-class(Litter.data$collectDate)
+
+Litter$collectDate <- as.Date(Litter$collectDate, format = "%Y-%m-%d")
+
+class(Litter$collectDate)
 
 # Determining which dates litter was sampled in August 2018 using the 'unique' function
 
-unique(Litter.data$collectDate, c(08/01/2018:08/30/2018))
+unique(Litter$collectDate)
 
 ```
 
@@ -167,18 +169,19 @@ unique(Litter.data$collectDate, c(08/01/2018:08/30/2018))
 
 ```{r}
 
-summary(Litter.data$collectDate)
+summary(Litter$plotID)
+unique(Litter$plotID)
 
 ```
 
-> Answer:
+> Answer: summary gives you a count (entry) - unique just tells you which ones (exluding duplicates)
 
 14. Create a bar graph of functionalGroup counts. This shows you what type of litter is collected at the Niwot Ridge sites. Notice that litter types are fairly equally distributed across the Niwot Ridge sites.
 
 ```{r}
 #14. Creating a bar graph of 'functionalGroup' counts
 
-ggplot(Litter.data) +
+ggplot(Litter) +
   geom_bar(aes(x = functionalGroup))
 
 ```
@@ -188,22 +191,21 @@ ggplot(Litter.data) +
 ```{r}
 #15. Creating a boxplot of dryMass by functionalGroup
 
-ggplot(Litter.data) +
+ggplot(Litter) +
   geom_boxplot(aes(x = functionalGroup, y = dryMass))
 
 
 #15. Creating a violin plot of dryMass by functionalGroup
 
-ggplot(Litter.data) +
-  geom_violin(aes(x = functionalGroup, y = dryMass),
-              draw_quantiles = c(0.25, 0.5, 0.75))
+ggplot(Litter) +
+  geom_violin(aes(x = functionalGroup, y = dryMass))
 
 ```
 
 Why is the boxplot a more effective visualization option than the violin plot in this case?
 
-> Answer:
+> Answer: 
 
 What type(s) of litter tend to have the highest biomass at these sites?
 
-> Answer:
+> Answer: 
