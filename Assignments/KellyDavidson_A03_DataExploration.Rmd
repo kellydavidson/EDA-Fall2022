@@ -4,7 +4,7 @@ author: "Kelly Davidson"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 ## OVERVIEW
@@ -27,7 +27,8 @@ The completed exercise is due on Sept 30th.
 1.  Check your working directory, load necessary packages (tidyverse), and upload two datasets: the ECOTOX neonicotinoid dataset (ECOTOX_Neonicotinoids_Insects_raw.csv) and the Niwot Ridge NEON dataset for litter and woody debris (NEON_NIWO_Litter_massdata_2018-08_raw.csv). Name these datasets "Neonics" and "Litter", respectively. Be sure to include the subcommand to read strings in as factors.
 
 ```{r,  message = FALSE}
-#1.
+#1. wrap code when knitting
+knitr::opts_chunk$set(tidy.opts=list(width.cutoff=80), tidy=TRUE)
 
 # Checking current working directory and load tidyverse package
 getwd()
@@ -46,7 +47,7 @@ Litter <- read.csv("./Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv", strin
 
 2.  The neonicotinoid dataset was collected from the Environmental Protection Agency's ECOTOX Knowledgebase, a database for ecotoxicology research. Neonicotinoids are a class of insecticides used widely in agriculture. The dataset that has been pulled includes all studies published on insects. Why might we be interested in the ecotoxicology of neonicotinoids on insects? Feel free to do a brief internet search if you feel you need more background information.
 
-> Answer: Since neonicotinoids are a type insecticide, we would likely be interested in studying the effects of these insecticides on many different types of insects. Certain insects such as bees are important pollinators and are a necessary part of food production and agriculture, so we would want to know the effect of these neonicotinoids on all insects to determine overall impacts on target AND non-target species.
+> Answer: Since neonicotinoids are a type insecticide, we would likely be interested in studying the effects of these insecticides on many different types of insects. Certain insects such as bees are important pollinators and are a necessary part of food production and agriculture, so we would want to know the effect of these neonicotinoids on all insects to determine overall impacts on target and non-target species.
 
 3.  The Niwot Ridge litter and woody debris dataset was collected from the National Ecological Observatory Network, which collectively includes 81 aquatic and terrestrial sites across 20 ecoclimatic domains. 32 of these sites sample forest litter and woody debris, and we will focus on the Niwot Ridge long-term ecological research (LTER) station in Colorado. Why might we be interested in studying litter and woody debris that falls to the ground in forests? Feel free to do a brief internet search if you feel you need more background information.
 
@@ -81,7 +82,7 @@ summary(Neonics$Effect)
 
 ```
 
-> Answer: The most common effects that are studied are population and mortality. These effects might be of interest specifically to analyze the impact of certain neonicotinoids on target and non-target species. Additionally, understanding if a specific neonicotinoids results in death (mortality) or not would be essential in determining the effectiveness of the insecticide.
+> Answer: The most common effects that are studied are population (count = 1803) and mortality (count = 1493). These effects might be of interest specifically to analyze the impact of certain neonicotinoids on target and non-target species. Additionally, understanding if a specific neonicotinoids results in death (mortality) or not would be essential in determining the effectiveness of the insecticide.
 
 7.  Using the `summary` function, determine the six most commonly studied species in the dataset (common name). What do these species have in common, and why might they be of interest over other insects? Feel free to do a brief internet search for more information if needed.
 
@@ -92,7 +93,7 @@ summary(Neonics$Species.Common.Name)
 
 ```
 
-> Answer: The six most commonly studied species in this dataset are honey bees, parasitic wasps, buff tailed bumblebees, carniolan honey bees, bumble bees, and Italian honeybees - all of which are important pollinators for food crops and other agricultural products. Due to their important role in food production, the effect of certain neonicotinoids on these species would likely be of interest to ensure these non-target species are not killed by these insecticides.
+> Answer: The six most commonly studied species in this dataset are honey bees, parasitic wasps, buff tailed bumblebees, carniolan honey bees, bumble bees, and Italian honeybees all of which are important pollinators for food crops and other agricultural products. Due to their important role in food production, the effect of certain neonicotinoids on these species would likely be of interest to ensure these non-target species are not killed by insecticides.
 
 8.  Concentrations are always a numeric value. What is the class of Conc.1..Author. in the dataset, and why is it not numeric?
 
@@ -103,7 +104,7 @@ class(Neonics$Conc.1..Author.)
 
 ```
 
-> Answer: The class of columnn "Conc.1..Author." is factor, not numeric. That is because of the subcommand we included when we uploaded and named the Neonics dataset in question #1 to read strings in as factors - "stringsAsFactors = TRUE"
+> Answer: The class of columnn "Conc.1..Author." is factor, not numeric. That is because of the subcommand we included when we uploaded and named the Neonics dataset in question #1 to read strings in as factors - "stringsAsFactors = TRUE". However, the values within this column are still numeric.
 
 ## Explore your data graphically (Neonics)
 
@@ -129,7 +130,7 @@ ggplot(Neonics) +
 
 Interpret this graph. What are the most common test locations, and do they differ over time?
 
-> Answer: The most common test locations are "Labs" and "Field natural" both of which increase greatly from 2000 to 2020. 
+> Answer: The most common test locations are "Labs" and "Field natural" both of which increase greatly from 2000 to 2020. From 1980 to 2000, there were fewer testing locations in total compared to the years 2000 to 2020.
 
 11. Create a bar graph of Endpoint counts. What are the two most common end points, and how are they defined? Consult the ECOTOX_CodeAppendix for more information.
 
@@ -149,18 +150,13 @@ ggplot(Neonics) +
 
 ```{r}
 #12. Determining the class of "collectDate"
-
 class(Litter$collectDate)
 
 # "collectDate" is a factor, so changing it to a date and then confirming the new class of the variable
-
-
 Litter$collectDate <- as.Date(Litter$collectDate, format = "%Y-%m-%d")
-
 class(Litter$collectDate)
 
 # Determining which dates litter was sampled in August 2018 using the 'unique' function
-
 unique(Litter$collectDate)
 
 ```
@@ -168,7 +164,7 @@ unique(Litter$collectDate)
 13. Using the `unique` function, determine how many plots were sampled at Niwot Ridge. How is the information obtained from `unique` different from that obtained from `summary`?
 
 ```{r}
-
+#13. running the 'summary' and 'unique' functions
 summary(Litter$plotID)
 unique(Litter$plotID)
 
