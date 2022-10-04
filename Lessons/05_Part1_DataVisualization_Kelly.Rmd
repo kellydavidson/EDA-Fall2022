@@ -145,13 +145,13 @@ print(PMplot.line)
 ### Plotting the relationship between two continuous variables: Scatterplot
 
 ```{r, fig.height = 3, fig.width = 4, warning = FALSE}
-# Scatterplot
+# Scatterplot - comparing irridanceWater and dissolvedOxygen - not ideal visualization - need to adjust the axes (x and y)
 lightvsDO <- 
   ggplot(PeterPaul.chem.nutrients, aes(x = irradianceWater, y = dissolvedOxygen)) +
   geom_point()
 print(lightvsDO)
 
-# Adjust axes
+# Adjust axes to exclude that one outlier above 600 - now you can actually see the plot!
 lightvsDOfixed <- 
   ggplot(PeterPaul.chem.nutrients, aes(x = irradianceWater, y = dissolvedOxygen)) +
   geom_point() +
@@ -159,7 +159,7 @@ lightvsDOfixed <-
   ylim(0, 20)
 print(lightvsDOfixed)
 
-# Depth in the fields of limnology and oceanography is on a reverse scale
+# Depth in the fields of limnology and oceanography is on a reverse scale - changing x and y variables, and reversing the y scale
 tempvsdepth <- 
   ggplot(PeterPaul.chem.nutrients, aes(x = temperature_C, y = depth)) +
   #ggplot(PeterPaul.chem.nutrients, aes(x = temperature_C, y = depth, color = daynum)) +
@@ -167,6 +167,8 @@ tempvsdepth <-
   scale_y_reverse()
 print(tempvsdepth)
 
+#adding a trendline using 'geom_smooth' - method 'lm' = linear model
+#also adding another line using 'geom_abline' by specifying slope and y-intercept
 NvsP <-
   ggplot(PeterPaul.chem.nutrients, aes(x = tp_ug, y = tn_ug, color = depth)) +
   geom_point() +
@@ -181,27 +183,32 @@ A traditional way to display summary statistics of continuous variables is a bar
 
 What might be more effective ways to display the information? Navigate to the boxplots page in the Caveats section to explore further.
 
+Error bars hide information so be careful
+Violin plot more useful when you have a large spread
+Box plots and violin plots are a better way to show summary statistics than bar plots with error bars
+
 ```{r, fig.height = 3, fig.width = 4, warning = FALSE}
-# Box and whiskers plot
+# Box and whiskers plot - this is a better way to show the summary statistics than doing a bar plot with error bars
 Nutrientplot3 <-
   ggplot(PeterPaul.chem.nutrients.gathered, aes(x = lakename, y = concentration)) +
-  geom_boxplot(aes(color = nutrient)) # Why didn't we use "fill"?
+  geom_boxplot(aes(color = nutrient)) # Why didn't we use "fill"? color is in terms of the shape, fill only deals with the inside of shapes
 print(Nutrientplot3)
 
-# Dot plot
+# Dot plot - 'binaxis' tells r to stack the observations on the y axis, 'binwidth' sets the width of the bin, 'stackdir' means you are centering the observations, and 'position = dodge' means you are giving width to repeated observations, not just stacking them on top of one another (no dots are overlayed) - this is a good way to show the spread
 Nutrientplot4 <-
   ggplot(PeterPaul.chem.nutrients.gathered, aes(x = lakename, y = concentration)) +
   geom_dotplot(aes(color = nutrient, fill = nutrient), binaxis = "y", binwidth = 1, 
                stackdir = "center", position = "dodge", dotsize = 2) #
 print(Nutrientplot4)
 
-# Violin plot
+# Violin plot - similar to box plots (though box plots only shows summary statistics), but violin plots show you the spread or density of the observations
 Nutrientplot5 <-
   ggplot(PeterPaul.chem.nutrients.gathered, aes(x = lakename, y = concentration)) +
   geom_violin(aes(color = nutrient)) #
 print(Nutrientplot5)
 
-# Frequency polygons
+# Frequency polygons - adding multiple frequency polygons - one for each of the nutrient types
+#problems: no legend, x-axis is not accurate... there is a better way to do it!
 # Using a tidy dataset
 Nutrientplot6 <-
   ggplot(PeterPaul.chem.nutrients) +
@@ -212,7 +219,8 @@ Nutrientplot6 <-
   geom_freqpoly(aes(x = po4), color = "red") 
 print(Nutrientplot6)
 
-# Using a gathered dataset
+# Using a gathered dataset - nutrients are gathered in one column, this makes for a better frequency polygon plot
+#now we have a legend and the title on the x-axis is correct
 Nutrientplot7 <-   
   ggplot(PeterPaul.chem.nutrients.gathered) +
   geom_freqpoly(aes(x = concentration, color = nutrient))
@@ -221,10 +229,10 @@ print(Nutrientplot7)
 # Frequency polygons have the risk of becoming spaghetti plots. 
 # See <https://www.data-to-viz.com/caveat/spaghetti.html> for more info.
 
-# Ridgeline plot
+# Ridgeline plot - will show the density of your distribution over time - 'fill' to assign different colors for each lake
 Nutrientplot6 <-
   ggplot(PeterPaul.chem.nutrients.gathered, aes(y = nutrient, x = concentration)) +
-  geom_density_ridges(aes(fill = lakename), alpha = 0.5) #
+  geom_density_ridges(aes(fill = lakename), alpha = 0.5) #using fill here instead of color - we want to fill underneath the curve, not fill in the line
 print(Nutrientplot6)
 
 
