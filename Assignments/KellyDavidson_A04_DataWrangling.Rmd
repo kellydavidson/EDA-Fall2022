@@ -3,6 +3,8 @@ title: "Assignment 4: Data Wrangling"
 author: "Kelly Davidson"
 output: pdf_document
 geometry: margin=2.54cm
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -36,6 +38,7 @@ The completed exercise is due on Friday, Oct7th @ 5:00pm.
 getwd()
 library(tidyverse)
 library(lubridate)
+library(dplyr)
 
 EPAair_PM25_2019 <- read.csv("./Data/Raw/EPAair_PM25_NC2019_raw.csv" , stringsAsFactors = TRUE)
 EPAair_PM25_2018 <- read.csv("./Data/Raw/EPAair_PM25_NC2018_raw.csv" , stringsAsFactors = TRUE)
@@ -136,21 +139,22 @@ EPAair_18_19 <- rbind(EPAair_PM25_2019, EPAair_PM25_2018, EPAair_O3_2019, EPAair
 EPAair_18_19 <-
   EPAair_18_19 %>% 
   filter(Site.Name == "Linville Falls" | Site.Name == "Durham Armory" | Site.Name == "Leggett" | Site.Name == "Hattie Avenue" | Site.Name == "Clemmons Middle" | Site.Name == "Mendenhall School" | Site.Name == "Frying Pan Mountain" | Site.Name == "West Johnston Co." | Site.Name == "Garinger High School" | Site.Name == "Castle Hayne" | Site.Name == "Pitt Agri. Center" | Site.Name == "Bryson City" | Site.Name == "Millbrook School") %>% 
-  group_by(Date, Site.Name, AQS_PARAMETER_DESC, COUNTY)
-  
-  
-  summarise(meanAQI = mean(DAILY_AQI_VALUE),
+  group_by(Date, Site.Name, AQS_PARAMETER_DESC, COUNTY) %>% 
+      summarise(meanAQI = mean(DAILY_AQI_VALUE),
             meanLatitude = mean(SITE_LATITUDE),
             meanLongitude = mean(SITE_LONGITUDE)) %>% 
-  mutate(Month = month(Date)) %>% 
-  mutate(Year = year(Date))
-  
+    mutate(Month = month(Date)) %>% 
+    mutate(Year = year(Date))
 
 #9. 
+EPAair_18_19 <-
+  pivot_wider(EPAair_18_19, names_from = AQS_PARAMETER_DESC, values_from = meanAQI)
 
 #10. 
+dim(EPAair_18_19)
 
 #11. 
+write.csv(EPAair_18_19, row.names = FALSE, file = "./Data/Processed/EPAair_O3_PM25_NC1819_Processed.csv")
 
 ```
 
@@ -161,11 +165,20 @@ EPAair_18_19 <-
 13. Call up the dimensions of the summary dataset.
 
 ```{r}
-#12a
+#12a.
+EPAair_18_19_summary <-
+  EPAair_18_19 %>% 
+  group_by(Site.Name, Month, Year) %>% 
+    summarise(meanAQI_Ozone = mean(Ozone), 
+              meanAQI_PM2.5 = mean(PM2.5))
+    
+#12b. 
+EPAair_18_19_summary <-
+  EPAair_18_19 %>% 
+  drop_na()
+  
 
-#12b
-
-#13
+#13. 
 
 ```
 
