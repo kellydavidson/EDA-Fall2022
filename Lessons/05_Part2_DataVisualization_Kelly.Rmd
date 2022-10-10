@@ -160,14 +160,14 @@ nationalparkcolors (package)
 * https://github.com/katiejolly/nationalparkcolors
 
 ```{r, warning = FALSE}
-# install.packages("viridis")
-# install.packages("RColorBrewer")
-# install.packages("colormap")
+install.packages("viridis")
+install.packages("RColorBrewer")
+install.packages("colormap")
 library(viridis)
 library(RColorBrewer)
 library(colormap)
 
-scales::show_col(colormap(colormap = colormaps$viridis, nshades = 16))
+scales::show_col(colormap(colormap = colormaps$viridis, nshades = 16)) #shows you the different colors in this package
 scales::show_col(colormap(colormap = colormaps$inferno, nshades = 16))
 scales::show_col(colormap(colormap = colormaps$magma, nshades = 16))
 display.brewer.all(n = 9)
@@ -180,13 +180,14 @@ print(NvsP)
 # let's first make the plot look better.
 # change your axis labels to reflect TN and TP in micrograms per liter.
 # change your legend labels
+
 NvsP2 <-
   ggplot(PeterPaul.chem.nutrients, aes(x = tp_ug, y = tn_ug, color = depth, shape = lakename)) +
-  geom_point(alpha = 0.7, size = 2.5) +
-  #labs() + # change your legend labels here
+  geom_point(alpha = 0.7, size = 2.5) + #changing the transparency and size of points
+  labs(color = "Depth", shape = "Lake Name") + # change your legend labels here
   scale_shape_manual(values = c(15, 17)) +
   #scale_color_distiller(palette = "Blues", direction = 1) + # use scale_color_brewer for discrete variables
-  scale_color_viridis(option = "magma", direction = -1) +
+  scale_color_viridis(option = "magma", direction = -1) + #choosing "magma" as the theme
   theme(legend.position = "right", 
         legend.text = element_text(size = 12), legend.title = element_text(size = 12))
 print(NvsP2)
@@ -214,9 +215,11 @@ In situations where facets don't fill our needs to place multiple plots on a pag
 A useful guide for aligning plots by axis can be found here: https://wilkelab.org/cowplot/articles/aligning_plots.html
 
 ```{r, fig.height = 7, fig.width = 6}
-#install.packages("cowplot")
+install.packages("cowplot")
 library(cowplot)
 plot_grid(NvsP2, Nutrientplot, nrow = 2, align = 'h', rel_heights = c(1.25, 1))
+#putting two graphs on the same window, set number of rows to "2" 
+#"rel_heights = " allows you to change the relative height of each plot
 
 ```
 
