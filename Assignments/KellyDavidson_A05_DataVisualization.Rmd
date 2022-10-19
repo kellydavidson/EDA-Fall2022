@@ -1,8 +1,10 @@
 ---
 title: "Assignment 5: Data Visualization"
-author: "Student Name"
+author: "Kelly Davidson"
 output: pdf_document
 geometry: margin=2.54cm
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -39,16 +41,43 @@ the processed data file for the Niwot Ridge litter dataset (use the
 2. Make sure R is reading dates as date format; if not change the format to date.
 
 ```{r}
-#1 
+#1. Verifying working directory and loading tidyverse, lubridate, & cowplot packages
+# Loading the two processed data files "Lake_nutrients_processed" and "Litter_processed)
 
-#2 
+getwd()
+library(tidyverse)
+library(lubridate)
+library(cowplot)
+
+Lake_nutrients_processed <- 
+  read.csv("./Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv" , stringsAsFactors = TRUE)
+
+Litter_processed <-
+  read.csv("./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv")
+
+#2. Checking the class of the date columns and changing them to the appropriate date format for both datasets
+
+class(Lake_nutrients_processed$sampledate)
+class(Litter_processed$collectDate)
+
+Lake_nutrients_processed$sampledate <- 
+  as.Date(Lake_nutrients_processed$sampledate, format = "%Y-%m-%d")
+Litter_processed$collectDate <-
+  as.Date(Litter_processed$collectDate, format = "%Y-%m-%d")
 
 ```
 ## Define your theme
 3. Build a theme and set it as your default theme.
 
 ```{r}
-#3
+#3. Building my theme and setting it as the default theme
+
+A05_theme <-
+  theme_classic(base_size = 14) +
+  theme(axis.text = element_text(color = "dark gray"), 
+  legend.position = "top")
+
+theme_set(A05_theme)
 
 ```
 
@@ -63,7 +92,17 @@ color it black. Adjust your axes to hide extreme values (hint: change the
 limits using `xlim()` and/or `ylim()`).
 
 ```{r}
-#4
+#4. Plotting total phosphorus by phosphate concentration with separate aesthetics for Peter Lake & Paul Lake
+
+phosphate_plot <-
+  ggplot(Lake_nutrients_processed) +
+  geom_point(aes(x = tp_ug, y = po4, shape = lakename, color = lakename)) +
+  ylab(expression("Phosphate Concentration")) + 
+  xlab(expression("Total Phosphorus")) +
+  geom_abline() + #adding line of best fit
+  ylim(0, 200) #adjusting y-axis to hide extreme values above 200
+
+print(phosphate_plot)
 
 ```
 
@@ -77,7 +116,13 @@ Tip: R has a build in variable called `month.abb` that returns a list of months;
 see <https://r-lang.com/month-abb-in-r-with-example>
 
 ```{r}
-#5
+#5. 
+
+temp_boxplot <-
+  ggplot(Lake_nutrients_processed, aes(x = month)) +
+  geom_boxplot(aes(color = lakename))
+
+print(temp_TP_TN_boxplot)
 
 ```
 
