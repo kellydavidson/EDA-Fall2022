@@ -50,10 +50,12 @@ library(lubridate)
 library(cowplot)
 
 Lake_nutrients_processed <- 
-  read.csv("./Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv" , stringsAsFactors = TRUE)
+  read.csv("./Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv" ,
+  stringsAsFactors = TRUE)
 
 Litter_processed <-
-  read.csv("./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv")
+  read.csv("./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv", 
+  stringsAsFactors = TRUE)
 
 #2. Checking the class of the date columns and changing them to the appropriate date format for both datasets
 
@@ -95,13 +97,12 @@ limits using `xlim()` and/or `ylim()`).
 #4. Plotting total phosphorus by phosphate concentration with separate aesthetics for Peter Lake & Paul Lake
 
 phosphate_plot <-
-  ggplot(Lake_nutrients_processed) +
-  geom_point(aes(x = tp_ug, y = po4, shape = lakename, color = lakename)) +
-  ylab(expression("Phosphate Concentration")) + 
+  ggplot(Lake_nutrients_processed, aes(x = tp_ug, y = po4)) +
+  ylab(expression("Phosphate")) + 
   xlab(expression("Total Phosphorus")) +
-  geom_abline() + #adding line of best fit
-  ylim(0, 200) #adjusting y-axis to hide extreme values above 200
-
+  ylim(0, 50) + #adjusting y-axis to hide extreme values above 200
+  geom_point(aes(shape = lakename, color = lakename)) +
+  geom_smooth(method = lm, color = "black") #adding line of best fit
 print(phosphate_plot)
 
 ```
@@ -118,11 +119,40 @@ see <https://r-lang.com/month-abb-in-r-with-example>
 ```{r}
 #5. 
 
-temp_boxplot <-
-  ggplot(Lake_nutrients_processed, aes(x = month)) +
-  geom_boxplot(aes(color = lakename))
+Temp_boxplot <-
+  ggplot(Lake_nutrients_processed, 
+  aes(x = factor(month, levels = c(1:12)), y = temperature_C)) +
+  xlab(expression("Month")) +
+  ylab(expression("Temperature")) +
+  geom_boxplot(aes(color = lakename)) +
+  scale_x_discrete(drop = FALSE)
+print(Temp_boxplot)
 
-print(temp_TP_TN_boxplot)
+TP_boxplot <-
+  ggplot(Lake_nutrients_processed,
+  aes(x = factor(month, levels = c(1:12)), y = tp_ug)) +
+  xlab(expression("Month")) +
+  ylab(expression("Total Phosphorus")) +
+  geom_boxplot(aes(color = lakename)) +
+  scale_x_discrete(drop = FALSE) +
+  ylim(0, 150)
+print(TP_boxplot)
+
+TN_boxplot <-
+  ggplot(Lake_nutrients_processed,
+  aes(x = factor(month, levels = c(1:12)), y = tn_ug)) +
+  xlab(expression("Month")) +
+  ylab(expression("Total Nitrogen")) +
+  geom_boxplot(aes(color = lakename)) +
+  scale_x_discrete(drop = FALSE)
+print(TN_boxplot)
+
+
+Combined_boxplot <- plot_grid(Temp_boxplot + theme(legend.position = "none"),
+                            TP_boxplot + theme(legend.position = "none"),
+                            TN_boxplot + theme(legend.position = "bottom"),
+                            nrow = 3, rel_heights = c(3, 3, 3))
+print(Combined_boxplot)
 
 ```
 
@@ -140,10 +170,27 @@ of each land use)
 three facets rather than separated by color. 
 
 ```{r}
-#6
+#6. 
 
-#7
+Needles_plot <-
+  ggplot(subset(Litter_processed, functionalGroup == "Needles"),
+  aes(x = collectDate, y = dryMass, color = nlcdClass)) +
+  xlab(expression("Date")) +
+  ylab(expression("Dry Mass")) +
+  geom_point()
+print(Needles_plot)
 
+
+#7. 
+
+Needles_facets_plot <-
+  ggplot(subset(Litter_processed, functionalGroup == "Needles"),
+  aes(x = collectDate, y = dryMass)) +
+  xlab(expression("Date")) +
+  ylab(expression("Dry Mass")) +
+  geom_point() +
+  facet_wrap(vars(nlcdClass), nrow = 3)
+print(Needles_facets_plot)
 
 ```
 Question: Which of these plots (6 vs. 7) do you think is more effective, and why? 
