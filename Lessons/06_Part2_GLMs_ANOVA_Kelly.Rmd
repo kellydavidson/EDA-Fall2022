@@ -19,7 +19,7 @@ library(tidyverse)
 #install.packages("agricolae")
 library(agricolae)   #you may need to install/update package "htmltools" before installing and loading agricolae
 
-Litter <- read.csv("./Data_2022sp/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv", stringsAsFactors = TRUE)
+Litter <- read.csv("./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv", stringsAsFactors = TRUE)
 
 # Set date to date format
 Litter$collectDate <- as.Date(Litter$collectDate , format = "%Y-%m-%d")
@@ -29,6 +29,8 @@ mytheme <- theme_classic(base_size = 14) +
   theme(axis.text = element_text(color = "black"), 
         legend.position = "top")
 theme_set(mytheme)
+
+#ANOVA - analysis of variance by comparing means
 ```
 
 ### One-way ANOVA
@@ -38,24 +40,24 @@ For example: Does total litter biomass differ among sites at the Niwot Ridge LTE
 ```{r}
 # Wrangle the data
 Litter.Totals <- Litter %>%
-  group_by(plotID, collectDate, nlcdClass) %>%
+  group_by(plotID, collectDate, nlcdClass) %>% #this selects only the columns we want
   summarise(dryMass = sum(dryMass))
 
 summary(Litter.Totals)
-#check all value of plotID
-summary(Litter.Totals$plotID)
+#check all values of plotID for different site locations
+summary(Litter.Totals$plotID) #number of occurances at each site - not equivalent, but we can still run the 1 sided ANOVA test
 
-# Test for normality. 
+# Test for normality
 # Note: the important assumption for GLMs is normality of residuals, 
 # not necessarily normality of raw data. See below when we plot the model.
-# shapiro.test() performs the Shapiro-Wilk test of the null that data follows a normal distribution
+# shapiro.test() performs the Shapiro-Wilk test of the null hypothesis that data follows a normal distribution
 
-shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_040"])
+shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_040"]) #p value is less than .05, so reject the null hypothesis - does not follow a normal distribution
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_041"])
-shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_046"])
+shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_046"]) #p value of 0.40 so it does follow a normal distribution
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_047"])
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_051"])
-shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_057"])
+shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_057"]) #p value of 0.13 so it does follow a normal distribution
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_058"])
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_061"])
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_062"])
@@ -65,20 +67,20 @@ shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_067"])
 
 #results: reject null in all except two: NIWO_057 and NIWO_046
 #but method is robust from small deviations from normal distribution
-qqnorm(Litter.Totals$dryMass); qqline(Litter.Totals$dryMass)
+qqnorm(Litter.Totals$dryMass); qqline(Litter.Totals$dryMass) #data does not follow a normal distribution
 
 # Test for equal variance
 # ANOVA is robust against departures from equal variance.
 # bartlett.test() performs Bartlett's test of the null that the variances in each of the groups (samples) are the same.
-bartlett.test(Litter.Totals$dryMass ~ Litter.Totals$plotID)
+bartlett.test(Litter.Totals$dryMass ~ Litter.Totals$plotID) #p value is less than 0.05 so reject the null, variance is not equal
 
 #results: reject null i.e. variances are not equal
 
 # Format ANOVA as aov
-Litter.Totals.anova <- aov(data = Litter.Totals, dryMass ~ plotID)
+Litter.Totals.anova <- aov(data = Litter.Totals, dryMass ~ plotID) #anova is similar to lm function
 summary(Litter.Totals.anova)
 
-#results: reject null hypothesis i.e. difference between a pair of group means is statistically significant
+#results: reject null hypothesis (mean is the same across all variables) i.e. difference between a pair of group means is statistically significant
 
 # Format ANOVA as lm
 Litter.Totals.anova2 <- lm(data = Litter.Totals, dryMass ~ plotID)

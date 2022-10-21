@@ -132,17 +132,18 @@ Given the distribution of irradiance values, we don't have a linear relationship
 PeterPaul.chem.nutrients <- filter(PeterPaul.chem.nutrients, 
                                    irradianceWater != 0 & irradianceWater < 5000)
 irradiance.regression2 <- lm(data = PeterPaul.chem.nutrients, log(irradianceWater) ~ depth) #must eliminate zeros when doing a log
-summary(irradiance.regression2)
+summary(irradiance.regression2) #now our r^2 value is explaining 72% of the data (much better fit than before!)
 
 par(mfrow = c(2,2), mar=c(4,4,4,4))
 plot(irradiance.regression2)
 par(mfrow = c(1,1))
+#easier to see symmetry now - 
 
 # Add a line and standard error for the linear regression
 irradiancebydepth2 <- 
   ggplot(PeterPaul.chem.nutrients, aes(x = depth, y = irradianceWater)) +
-  geom_smooth(method = "lm") +
-  scale_y_log10() +
+  geom_smooth(method = "lm") + #adding a line
+  scale_y_log10() + #taking the log
   geom_point() 
 print(irradiancebydepth2) 
 
@@ -151,7 +152,7 @@ irradiancebydepth2 <-
     ggplot(PeterPaul.chem.nutrients, aes(x = depth, y = irradianceWater)) +
     geom_point() +
     scale_y_log10() +  #log transformed values for irradianceWater
-    geom_smooth(method = 'lm', se = FALSE, color = "black")
+    geom_smooth(method = 'lm', se = FALSE, color = "black") #use this to eliminate the confidence intervals (grey area around line in last example)
 print(irradiancebydepth2)
 
 # Make the graph attractive
@@ -161,10 +162,13 @@ print(irradiancebydepth2)
 ## Multiple Linear Regression
 It is possible, and often useful, to consider multiple continuous explanatory variables at a time in a linear regression. For example, total phosphorus concentration in Paul Lake (the unfertilized lake) could be dependent on depth and dissolved oxygen concentration: 
 
+**More than 1 variable on the right side of the equation
+
 ``` {r, fig.height = 3, fig.width = 4}
-TPregression <- lm(data = subset(PeterPaul.chem.nutrients, lakename == "Paul Lake"), 
-                   tp_ug ~ depth + dissolvedOxygen)
-summary(TPregression)
+TPregression <- lm(data = subset(PeterPaul.chem.nutrients, lakename == "Paul Lake"), #only looking at Paul Lake
+                   tp_ug ~ depth + dissolvedOxygen) #formula
+summary(TPregression) #results: p is less than 0.05 so the relationship is different than 0
+#r^2 value is 30% which means that only 30% of the variability of phosphorus is explained by the depth and dissolved oxygen concentration
 
 TPplot <- ggplot(subset(PeterPaul.chem.nutrients, lakename == "Paul Lake"), 
                  aes(x = dissolvedOxygen, y = tp_ug, color = depth)) +
@@ -172,9 +176,11 @@ TPplot <- ggplot(subset(PeterPaul.chem.nutrients, lakename == "Paul Lake"),
   xlim(0, 20)
 print(TPplot)
 
-par(mfrow = c(2,2), mar=c(4,4,4,4))
+par(mfrow = c(2,2), mar=c(4,4,4,4)) #residual plots
 plot(TPregression)
 par(mfrow = c(1,1))
+
+#residual vs fitted: want red line to be parallel to x axis so not great here
 
 ```
 
@@ -182,18 +188,20 @@ par(mfrow = c(1,1))
 We can also make exploratory plots of several continuous data points to determine possible relationships, as well as covariance among explanatory variables. 
 
 ```{r, fig.height = 3, fig.width = 4}
-#install.packages("corrplot")
+#install.packages("corrplot") #correlation matrix, this allows you to ID variables that are highly correlated with total phosphorus
 library(corrplot)
 PeterPaulnutrients <- 
   PeterPaul.chem.nutrients %>%
   select(tn_ug:po4) %>%
-  na.omit()
+  na.omit() #omit nas
 PeterPaulCorr <- cor(PeterPaulnutrients)
-corrplot(PeterPaulCorr, method = "ellipse")
-corrplot.mixed(PeterPaulCorr, upper = "ellipse")
+corrplot(PeterPaulCorr, method = "ellipse") #the thinner (and the darker) the ellipse, the greater the correlation, you look at the SHAPE and the COLOR (to determine sign, +/- correlation)
+corrplot.mixed(PeterPaulCorr, upper = "ellipse") #mixed means decimals and shapes
 ```
 
-## AIC to select variables
+## AIC to select variables - 
+
+over fitting a model is not good
 
 However, it is possible to over-parameterize a linear model. Adding additional explanatory variables takes away degrees of freedom, and if explanatory variables co-vary the interpretation can become overly complicated. Remember, an ideal statistical model balances simplicity and explanatory power! To help with this tradeoff, we can use the **Akaike's Information Criterion (AIC)** to compute a stepwise regression that either adds explanatory variables from the bottom up or removes explanatory variables from a full set of suggested options. The smaller the AIC value, the better. 
 
@@ -205,10 +213,10 @@ Paul.naomit <- PeterPaul.chem.nutrients %>%
   na.omit()
 
 TPAIC <- lm(data = Paul.naomit, tp_ug ~ depth + dissolvedOxygen + 
-              temperature_C + tn_ug + po4)
+              temperature_C + tn_ug + po4) #include all the variables (5 columns of the dataset)
 
 #Choose a model by AIC in a Stepwise Algorithm
-step(TPAIC)
+step(TPAIC) #oxygen, temp, and nitrogen will lead to the best fit - WANT THE LOWEST AIC VALUE
 TPmodel <- lm(data = Paul.naomit, tp_ug ~ dissolvedOxygen + temperature_C + tn_ug)
 summary(TPmodel)
 
