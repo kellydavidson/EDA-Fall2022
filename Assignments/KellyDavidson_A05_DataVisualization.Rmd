@@ -4,7 +4,7 @@ author: "Kelly Davidson"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
@@ -28,12 +28,10 @@ This exercise accompanies the lessons in Environmental Data Analytics on Data Vi
 
 The completed exercise is due on Friday, Oct 14th @ 5:00pm.
 
-
-
 ## Set up your session 
 1. Set up your session. Verify your working directory and load the tidyverse, 
 lubridate, & cowplot packages. Upload the NTL-LTER processed data files for  
-nutrients and chemistry/physics for Peter and Paul Lakes (use the tidy 
+nutrients and chemistry/physics for Peter and Paul Lakes (use the tidy
 [`NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv`] version) and 
 the processed data file for the Niwot Ridge litter dataset (use the
 [`NEON_NIWO_Litter_mass_trap_Processed.csv`] version). 
@@ -42,8 +40,7 @@ the processed data file for the Niwot Ridge litter dataset (use the
 
 ```{r}
 #1. Verifying working directory and loading tidyverse, lubridate, & cowplot packages
-# Loading the two processed data files "Lake_nutrients_processed" and "Litter_processed)
-
+# Loading the two processed data files "Lake_nutrients_processed" and "Litter_processed"
 getwd()
 library(tidyverse)
 library(lubridate)
@@ -57,8 +54,7 @@ Litter_processed <-
   read.csv("./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv", 
   stringsAsFactors = TRUE)
 
-#2. Checking the class of the date columns and changing them to the appropriate date format for both datasets
-
+#2. Checking the class of the date columns and changing them to the appropriate date format for each dataset
 class(Lake_nutrients_processed$sampledate)
 class(Litter_processed$collectDate)
 
@@ -73,7 +69,6 @@ Litter_processed$collectDate <-
 
 ```{r}
 #3. Building my theme and setting it as the default theme
-
 A05_theme <-
   theme_classic(base_size = 14) +
   theme(axis.text = element_text(color = "dark gray"), 
@@ -94,19 +89,19 @@ color it black. Adjust your axes to hide extreme values (hint: change the
 limits using `xlim()` and/or `ylim()`).
 
 ```{r}
-#4. Plotting total phosphorus by phosphate concentration with separate aesthetics for Peter Lake & Paul Lake
-
+#4. Plotting total phosphorus by phosphate concentration
 phosphate_plot <-
-  ggplot(Lake_nutrients_processed, aes(x = tp_ug, y = po4)) +
-  ylab(expression("Phosphate")) + 
-  xlab(expression("Total Phosphorus")) +
-  ylim(0, 50) + #adjusting y-axis to hide extreme values above 200
-  geom_point(aes(shape = lakename, color = lakename)) +
-  geom_smooth(method = lm, color = "black") #adding line of best fit
+  ggplot(Lake_nutrients_processed, aes(x = po4, y = tp_ug)) +
+  ylab(expression("Total Phosphorus")) +    #renaming y axis
+  xlab(expression("Phosphate")) +    #renaming x axis
+  xlim(0, 45) +    #adjusting x-axis to hid extreme values above 45
+  ylim(0, 155) +    #adjusting y-axis to hide extreme values above 155
+  geom_point(aes(shape = lakename, color = lakename)) +   #creating separate 
+                                  #aesthetics for Peter & Paul Lakes
+  geom_smooth(method = lm, color = "black")    #adding line of best fit & coloring it black
 print(phosphate_plot)
 
 ```
-
 
 5. [NTL-LTER] Make three separate boxplots of (a) temperature, (b) TP, and 
 (c) TN, with month as the x axis and lake as a color aesthetic. Then, create 
@@ -116,42 +111,44 @@ present and that graph axes are aligned.
 Tip: R has a build in variable called `month.abb` that returns a list of months;
 see <https://r-lang.com/month-abb-in-r-with-example>
 
-```{r}
-#5. 
-
+```{r, fig.height = 7, fig.width = 7}
+#5. Making 3 separate boxplots of temperature, TP, and TN with month as the x axis and 
+#lake as a color aesthetic
 Temp_boxplot <-
   ggplot(Lake_nutrients_processed, 
   aes(x = factor(month, levels = c(1:12)), y = temperature_C)) +
-  xlab(expression("Month")) +
-  ylab(expression("Temperature")) +
-  geom_boxplot(aes(color = lakename)) +
-  scale_x_discrete(drop = FALSE)
+  xlab(expression("Month")) +    #renaming x axis
+  ylab(expression("Temperature")) +    #renaming y axis
+  geom_boxplot(aes(color = lakename)) +    #creating separate color aesthetics for Peter & Paul Lakes
+  scale_x_discrete(drop = FALSE)    #override default axis labels
 print(Temp_boxplot)
 
 TP_boxplot <-
   ggplot(Lake_nutrients_processed,
   aes(x = factor(month, levels = c(1:12)), y = tp_ug)) +
-  xlab(expression("Month")) +
-  ylab(expression("Total Phosphorus")) +
-  geom_boxplot(aes(color = lakename)) +
-  scale_x_discrete(drop = FALSE) +
-  ylim(0, 150)
+  xlab(expression("Month")) +    #renaming x axis
+  ylab(expression("Total Phosphorus")) +    #renaming y axis
+  geom_boxplot(aes(color = lakename)) +    #creating separate color aesthetics for Peter & Paul Lakes
+  scale_x_discrete(drop = FALSE)    #override default axis labels
 print(TP_boxplot)
 
 TN_boxplot <-
   ggplot(Lake_nutrients_processed,
   aes(x = factor(month, levels = c(1:12)), y = tn_ug)) +
-  xlab(expression("Month")) +
-  ylab(expression("Total Nitrogen")) +
-  geom_boxplot(aes(color = lakename)) +
-  scale_x_discrete(drop = FALSE)
+  xlab(expression("Month")) +    #renaming x axis
+  ylab(expression("Total Nitrogen")) +    #renaming y axis
+  geom_boxplot(aes(color = lakename)) +    #creating separate color aesthetics for Peter & Paul Lakes
+  scale_x_discrete(drop = FALSE)    #override default axis labels
 print(TN_boxplot)
 
-
+# Creating a cowplot to combine the 3 boxplots above (Temperature, TP, & TN)
 Combined_boxplot <- plot_grid(Temp_boxplot + theme(legend.position = "none"),
-                            TP_boxplot + theme(legend.position = "none"),
-                            TN_boxplot + theme(legend.position = "bottom"),
-                            nrow = 3, rel_heights = c(3, 3, 3))
+                              TP_boxplot + theme(legend.position = "none"),
+                              TN_boxplot + theme(legend.position = "bottom"),    
+                              #creating only 1 legend
+                            nrow = 3, align = 'v', rel_heights = c(1, 1.25, 1.25))
+#organizing the 3 boxplots into 3 rows, aligning them vertically, 
+#and setting their relative heights
 print(Combined_boxplot)
 
 ```
@@ -159,7 +156,7 @@ print(Combined_boxplot)
 Question: What do you observe about the variables of interest over seasons 
 and between lakes? 
 
-> Answer: 
+> Answer: The temperature, total phosphorus, and total nitrogen values for both Peter and Paul Lakes vary month-by-month and between the two sites. However, there is a general trend observed in which all 3 variables peak during late-summer, around July-August. More specifically, temperatures of Peter and Paul Lake seem to be relatively similar with lower temperatures recorded in May, June, September, October, and November and higher temperatures recorded in July and August. Similarly, the total phosphorus and total nitrogren values are highest in July and August. Conversely, there is a slightly higher concentration of total phosphorus and total nitrogen in Peter Lake than Paul Lake in June, July, August, and Semptember.
 
 6. [Niwot Ridge] Plot a subset of the litter dataset by displaying only the 
 "Needles" functional group. Plot the dry mass of needle litter by date and 
@@ -170,29 +167,29 @@ of each land use)
 three facets rather than separated by color. 
 
 ```{r}
-#6. 
-
+#6. Plotting only the "Needles" functional group of the litter dataset using the subset function
+# Plotting dry mass of needle litter by date
 Needles_plot <-
   ggplot(subset(Litter_processed, functionalGroup == "Needles"),
-  aes(x = collectDate, y = dryMass, color = nlcdClass)) +
-  xlab(expression("Date")) +
-  ylab(expression("Dry Mass")) +
+  aes(x = collectDate, y = dryMass, color = nlcdClass)) +    #creating a separate color
+                                                  #aesthetic for NLCD Classes
+  xlab(expression("Date")) +    #renaming the x axis
+  ylab(expression("Dry Mass")) +    #renaming the y axis
   geom_point()
 print(Needles_plot)
 
-
-#7. 
-
+#7. Plotting only the "Needles" functional group of the litter dataset using the subset function
+# Plotting dry mass of needle litter by date AND separating NLCD classes into 3 facets
 Needles_facets_plot <-
   ggplot(subset(Litter_processed, functionalGroup == "Needles"),
   aes(x = collectDate, y = dryMass)) +
-  xlab(expression("Date")) +
-  ylab(expression("Dry Mass")) +
+  xlab(expression("Date")) +    #renaming the x axis
+  ylab(expression("Dry Mass")) +    #renaming the y axis
   geom_point() +
-  facet_wrap(vars(nlcdClass), nrow = 3)
+  facet_wrap(vars(nlcdClass), nrow = 3)    #separating NLCD classes into 3 facets
 print(Needles_facets_plot)
 
 ```
 Question: Which of these plots (6 vs. 7) do you think is more effective, and why? 
 
-> Answer:
+> Answer: I think plot 7 is a more effective visualization of dry mass by NLCD class type because it allows for easier comparision between the 3 NLCD classes. When plotting dry mass by date in plot 6, although there are different colors used to represent the 3 different NLCD classes, it is difficult to get a sense of the true distribution of each class because some points within the graph are overlapped and clustered. In plot 7, you can more clearly see  differences in the classes that comprise the total dry mass of needles.
