@@ -115,11 +115,13 @@ Let's tackle a similar question from a different approach. Here, we want to expl
 10. Run a multiple regression on the recommended set of variables. 
 
 ```{r temperature.model}
-#9
+#9. 
+AIC <-
+  lm(data = Lake.Chemistry.raw.wrangled, temperature_C ~ year4 + daynum + depth)
 
 
 
-#10
+#10. 
 
 
 ```

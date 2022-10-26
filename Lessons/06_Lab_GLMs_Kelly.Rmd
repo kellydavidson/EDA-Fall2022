@@ -94,22 +94,31 @@ print(boxplot)
 
 Important components of the linear regression are the correlation and the R-squared value. The **correlation** is a number between -1 and 1, describing the relationship between the variables. Correlations close to -1 represent strong negative correlations, correlations close to zero represent weak correlations, and correlations close to 1 represent strong positive correlations. The **R-squared value** is the correlation squared, becoming a number between 0 and 1. The R-squared value describes the percent of variance accounted for by the explanatory variables. 
 
-For the NTL-LTER dataset, can we predict PM2.5 from Ozone?
+For the NTL-LTER dataset, can we predict PM2.5 (y-axis) from Ozone (x-axis)?
 
 ```{r}
 
 #Exercise 2: Run a linear regression PM2.5 by Ozone. Find the p-value and R-squared value. 
 
-EPAair <- filter(EPAair, PM2.5 != 0)
+#EPAair <- filter(EPAair, PM2.5 != 0)
 
 PM2.5_Ozone <-
-  lm(data = EPAair, log(PM2.5) ~ Ozone)
+  lm(data = EPAair, PM2.5 ~ Ozone)
 summary(PM2.5_Ozone)
+
+#p-value less than 0.5 (very small so reject null hypothesis)
+#Null hypothesis: there is no relationship or coefficient is equal to 0
+#r^2 = 0.1316 - 13% of the variability in PM2.5 is explained by ozone
 
 #Exercise 3: Build a scatterplot. Add a line and standard error for the linear regression. Add the regression equation to the plot
 
+ex2plot <-
+  ggplot(EPAair, aes(x = Ozone, y = PM2.5)) +
+  geom_point() +
+  geom_smooth(method = 'lm')
+print(ex2plot)
 
-
+#how do we find other significant variables? using AIC
 ```
 
 
@@ -121,19 +130,36 @@ What other variables can we add to improve model?
 
 #Exercise 4: Build correlation plots and identify more possible explanatory variables to add to the regression.
 
+ex4subset <- 
+  EPAair %>% 
+  select(meanLatitude:Ozone) %>% 
+  na.omit() #remember to ALWAYS drop na's before doing cor function
+  
+ex4corplot <- cor(ex4subset)
+corrplot(ex4corplot, method = "ellipse") #symmetrical matrix so only need to look at either above or below the diagonal
+corrplot.mixed(ex4corplot, upper = "ellipse")
+
+#looking at what else correlates with PM2.5 aside from ozone
+#PM2.5 & meanLat = positive corr (0.25)
 
 
+#Exercise 5: Choose a model by AIC in a Stepwise Algorithm. Do the results from AIC match the variables you selected on Exercise 4?
 
-#Exercise 5: Choose a model by AIC in a Stepwise Algorithm. Do the results from AIC match the variables you selected on Exercise 5?
+ex5AIC <- lm(data = ex4subset, PM2.5 ~ Ozone + Year + Month + meanLongitude + meanLatitude)
+step(ex5AIC)
+#AIC is like a scale - is it worth adding another variable to explain the varaiabiliyt while increasing the complicatedness of the model
+#AIC suggests we remove Year, that will give us a lower AIC which is ideal!
+#AIC might not always make a suggestion of what to remove
 
 
+#Exercise 6: Run another regression using the variables selected on Exercise 6. Compare r-squared value with the one from Exercise 2. 
 
+ex6 <- lm(data = ex4subset, PM2.5 ~ Ozone + Month + meanLongitude + meanLatitude)
+summary(ex6)
 
-#Exercise 6: Run another regression using the variables selected on Exercise 6. Compare r-squared value with the one from Exercise 5. 
+#r^2 is higher so that explains more of the variability
 
 ```
-
-
 
 ## Litter Exercise
 
@@ -151,8 +177,8 @@ summary(Litter.Totals.anova)
 Litter.Totals.groups <- HSD.test(Litter.Totals.anova, "plotID", group = TRUE)
 Litter.Totals.groups$groups
 
-Litter.Totals <- Litter %>%
-  mutate( treatgroups = Litter.Totals.groups$groups[plotID,2])
+Litter.Totals <- Litter.Totals %>%
+  mutate(treatgroups = Litter.Totals.groups$groups[plotID,2])
 
 # Graph the results
 Litter.Totals.plot <- ggplot(Litter.Totals, aes(x = plotID, y = dryMass)) +
@@ -168,5 +194,12 @@ print(Litter.Totals.plot)
 ```
 
 ```{r}
-#Exercise 7: Improve the plot```
+#Exercise 7: Improve the plot
 
+#assign.group <- function(site)
+  return(Litter.Totals.groups$groups[as.character(site, 2)])
+
+Litter.Totals$plotID <-
+  reorder(Litter.Totals$plotID, Litter.Totals$dryMass, FUN = mean)
+
+```
