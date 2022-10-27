@@ -83,7 +83,7 @@ tempbydepthplot <-
   geom_smooth(method = "lm") + #adding the line of best fit
   ylim(0,35) + #setting the limits of temperature along the y-axis
   ylab(expression("Temperature (C)")) + #renaming the y-axis
-  xlab(expression("Depth")) #renaming the x-axis
+  xlab(expression("Depth (m)")) #renaming the x-axis
 print(tempbydepthplot)
 
 ```
@@ -160,7 +160,7 @@ tempbydepthplot2 <-
   ggplot(Lake.Chemistry.raw.wrangled, aes(x = depth, y = temperature_C, color = lakename)) +
   geom_point(alpha = 0.5) +
   geom_smooth(method = "lm", se = FALSE) +
-  xlab("Depth") +
+  xlab("Depth (m)") +
   ylab("Temperature (C)") +
   ylim(0, 35)
 print(tempbydepthplot2)
