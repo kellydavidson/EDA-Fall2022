@@ -1,6 +1,6 @@
 ---
 title: "Assignment 7: Time Series Analysis"
-author: "Student Name"
+author: "Kelly Davidson"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -30,7 +30,26 @@ The completed exercise is due on Tuesday, March 16 at 11:59 pm.
 2. Import the ten datasets from the Ozone_TimeSeries folder in the Raw data folder. These contain ozone concentrations at Garinger High School in North Carolina from 2010-2019 (the EPA air database only allows downloads for one year at a time). Import these either individually or in bulk and then combine them into a single dataframe named `GaringerOzone` of 3589 observation and 20 variables. 
 
 ```{r, message = FALSE}
-#1
+#1.
+library(tidyverse)
+library(lubridate)
+#install.packages("trend")
+library(trend)
+#install.packages("zoo")
+library(zoo)
+#install.packages("Kendall")
+library(Kendall)
+#install.packages("tseries")
+library(tseries)
+library(plyr)
+library(readr)
+
+#2.
+Ozonefiles = list.files(path = "/home/guest/EDA-Fall2022/Data/Raw/Ozone_TimeSeries" , pattern = ".csv", full.names = TRUE)
+Ozonefiles
+
+GaringerOzone = ldply(Ozonefiles, read_csv)
+GaringerOzone
 
 ```
 
