@@ -82,13 +82,17 @@ dim(GaringerOzone) #checking the dimensions of this new data frame
 GaringerOzone$Date <- as.Date(GaringerOzone$Date, format = "%m/%d/%Y")
 
 # 4. Wrangling the dataset to only include the 3 columns specified above
-colnames(GaringerOzone)[colnames(GaringerOzone) == "Daily Max 8-hour Ozone Concentration"] <- "Daily.Max.8.hour.Ozone.Concentration" #renaming the Daily Max 8-hour Ozone Concentration column name
+colnames(GaringerOzone)[colnames(GaringerOzone) 
+                        == "Daily Max 8-hour Ozone Concentration"] <- "Daily.Max.8.hour.Ozone.Concentration" 
+                  #renaming the Daily Max 8-hour Ozone Concentration column name
 
 GaringerOzone_wrangled <-
   GaringerOzone %>%  #wrangling the data via a pipe
-  select(Date, Daily.Max.8.hour.Ozone.Concentration, DAILY_AQI_VALUE) #selecting only the columns specified
+  select(Date, Daily.Max.8.hour.Ozone.Concentration, DAILY_AQI_VALUE) #selecting only the 
+                                                                        #columns specified
 
-#5. Generating a new daily data frame from the wrangled dataset that contains a sequence of dates from 2010-01-01 to 2019-12-31
+#5. Generating a new daily data frame from the wrangled dataset that contains a sequence 
+#of dates from 2010-01-01 to 2019-12-31
 Days <- as.data.frame(seq.Date(from = as.Date("2010-01-01"), to = as.Date("2019-12-31"), by = "day"))
 colnames(Days) <- c("Date") #renaming the column to Date
 
@@ -105,7 +109,8 @@ dim(GaringerOzone.Daily) #checking the dimensions of this new data frame
 ```{r}
 #7. Creating a line plot depicting ozone concentrations over time
 DailyOzone_Concentration_plot <-
-  ggplot(GaringerOzone.Daily, aes(x = Date, y = Daily.Max.8.hour.Ozone.Concentration)) + #assigning x & y values
+  ggplot(GaringerOzone.Daily, aes(x = Date, y = Daily.Max.8.hour.Ozone.Concentration)) + 
+                                            #assigning x & y values
   geom_line() + #specifying a line plot
   geom_smooth(method = lm) + #adding a smoothed line to show potential linear trend
   ylab("Daily Ozone Concentration (ppm)") + #renaming the y-axis
@@ -124,11 +129,14 @@ Study question: Have ozone concentrations changed over the 2010s at this station
 
 ```{r}
 #8. Using a linear interpolation to fill in missing daily data for ozone concentration
-summary(GaringerOzone.Daily$Daily.Max.8.hour.Ozone.Concentration) #checking to see how many na's are in the ozone concentration column (63 total)
+summary(GaringerOzone.Daily$Daily.Max.8.hour.Ozone.Concentration) #checking to see how many 
+                                  #na's are in the ozone concentration column (63 total)
 
 GaringerOzone.Daily$Daily.Max.8.hour.Ozone.Concentration <- na.approx(GaringerOzone.Daily$Daily.Max.8.hour.Ozone.Concentration) #performing the linear interpolation
 
-summary(GaringerOzone.Daily$Daily.Max.8.hour.Ozone.Concentration) #checking to make sure there are no longer any na's in the ozone concentration column - meaning the linear interpolation worked correctly
+summary(GaringerOzone.Daily$Daily.Max.8.hour.Ozone.Concentration) #checking to make sure there 
+          #are no longer any na's in the ozone concentration column - meaning the linear  
+          #interpolation worked correctly
 
 ```
 
@@ -142,8 +150,10 @@ GaringerOzone.Monthly <- GaringerOzone.Daily %>% #creating the new data frame vi
   mutate(Month = month(Date)) %>% #adding a month column
   mutate(Year = year(Date)) %>%  #adding a year column
   mutate(Month_Year = my(paste(Month, "-", Year))) %>% #combining the month and year into a new column
-  group_by(Month_Year) %>% #setting the order of the month-year combination column - mainly for graphing purposes
-  summarize(Mean_Monthly_03 = mean(Daily.Max.8.hour.Ozone.Concentration)) #calculating the monthly mean ozone concentrations
+  group_by(Month_Year) %>% #setting the order of the month-year combination column
+                                          #mainly for graphing purposes
+  dplyr::summarize(Mean_Monthly_03 = mean(Daily.Max.8.hour.Ozone.Concentration)) 
+                          #calculating the monthly mean ozone concentrations
 
 ```
 
@@ -182,7 +192,7 @@ summary(GaringerOzone.Monthly.Seasonal.MannKendall)
 
 13. Create a plot depicting mean monthly ozone concentrations over time, with both a geom_point and a geom_line layer. Edit your axis labels accordingly.
 
-```{r, fig.height= 3, fig.width= 3}
+```{r, fig.height= 4, fig.width= 5}
 # 13. Creating a point & line plot depicting mean monthly ozone concentrations over time
 Ozone_monthly_plot <- 
   ggplot(GaringerOzone.Monthly, aes(x = Month_Year, y = Mean_Monthly_03)) + #assigning x & y values
@@ -205,7 +215,8 @@ print(Ozone_monthly_plot)
 
 ```{r}
 #15. Subtracting the seasonal component from the monthly ozone concentration time series
-GaringerOzone.Monthly.Nonseasonal <- GaringerOzone.Monthly.ts - GaringerOzone.Monthly.Decomp$time.series[,1]
+GaringerOzone.Monthly.Nonseasonal <- GaringerOzone.Monthly.ts - 
+  GaringerOzone.Monthly.Decomp$time.series[,1]
 
 #16. Running the Mann-Kendall test on the non-seasonal monthly ozone concentration time series
 GaringerOzone.Monthly.MannKendall <- Kendall::MannKendall(GaringerOzone.Monthly.Nonseasonal)
