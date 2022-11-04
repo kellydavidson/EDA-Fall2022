@@ -4,7 +4,7 @@ author: "Kelly Davidson"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
@@ -108,7 +108,7 @@ DailyOzone_Concentration_plot <-
   ggplot(GaringerOzone.Daily, aes(x = Date, y = Daily.Max.8.hour.Ozone.Concentration)) + #assigning x & y values
   geom_line() + #specifying a line plot
   geom_smooth(method = lm) + #adding a smoothed line to show potential linear trend
-  ylab("Ozone Concentration (ppm)") + #renaming the y-axis
+  ylab("Daily Ozone Concentration (ppm)") + #renaming the y-axis
   xlab("Year")
 print(DailyOzone_Concentration_plot)
 
@@ -182,12 +182,13 @@ summary(GaringerOzone.Monthly.Seasonal.MannKendall)
 
 13. Create a plot depicting mean monthly ozone concentrations over time, with both a geom_point and a geom_line layer. Edit your axis labels accordingly.
 
-```{r, fig.height= 6, fig.width= 5}
+```{r, fig.height= 3, fig.width= 3}
 # 13. Creating a point & line plot depicting mean monthly ozone concentrations over time
 Ozone_monthly_plot <- 
   ggplot(GaringerOzone.Monthly, aes(x = Month_Year, y = Mean_Monthly_03)) + #assigning x & y values
   geom_point(color = "blue") + #adding blue points
   geom_line() + #adding a line to connect points
+  geom_smooth(method = "lm", se = FALSE, color = "dark green") + #adding a green trend line
   xlab("Year") + #renaming the x-axis
   ylab("Mean Monthly Ozone Concentration (ppm)") #renaming the y-axis
 print(Ozone_monthly_plot)
@@ -196,9 +197,7 @@ print(Ozone_monthly_plot)
 
 14. To accompany your graph, summarize your results in context of the research question. Include output from the statistical test in parentheses at the end of your sentence. Feel free to use multiple sentences in your interpretation.
 
-> Answer: "Have ozone concentrations changed over the 2010s at this station?" ; p-value is less than 0.05
-null hypothesis: data is stationary
-p-value less than 0.05 - reject the null hypothesis that states the data is stationary - there is a seasonal trend
+> Answer: In terms of the research question, ozone concentrations have changed over the 2010s at this monitoring station. The p-value in this scenario is 0.046724, which althought it is very close to 0.05, it is still less than 0.05. As a result, we must reject the null hypothesis that states the data is stationary. Further, there is a trend in mean monthly ozone concentrations in ppm from 2010 to 2020. The plot suggests a slight negative trend in ozone concentrations over time from ~0.043ppm in 2010 to ~0.039ppm in 2020 shown via the trendline.
 
 15. Subtract the seasonal component from the `GaringerOzone.monthly.ts`. Hint: Look at how we extracted the series components for the EnoDischarge on the lesson Rmd file.
 
@@ -214,4 +213,4 @@ summary(GaringerOzone.Monthly.MannKendall)
 
 ```
 
-> Answer: more significant 
+> Answer: In comparing the results of the Mann-Kendall test on the non-seasonal monthly ozone series to the seasonal Mann-Kendall test on the complete monthly ozone series, the Mann-Kendall test on the non-seasonal ozone series provided a much lower p-value (0.0075 versus 0.046724). Since this p-value is much less than 0.05, we must reject the null hypothesis that the data is stationary and conclude that there is a trend present in monthly ozone concentration over time. In addition, since this second Mann-Kendall test did not include the seasonality component, it suggests that there is a significant trend in the time series that is not due to seasonality.
