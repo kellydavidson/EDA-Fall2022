@@ -57,7 +57,7 @@ NE_counties_sf <- st_read('./Data/Spatial/cb_2018_us_county_20m.shp') %>%
 st_crs(NE_counties_sf)
 
 #5. Plotting the data
-mapView(NE_counties_sf)
+mapView(NE_counties_sf, layer.name = "Counties")
 
 ```
 
@@ -163,7 +163,7 @@ Now we can examine where the flooding appears most acute by visualizing gage hei
 
 ```{r}
 #19. Map the points, sized by gage height
-mapView(Gage_data_join_sf, zcol = "gage_ht") + mapView(NE_counties_sf, col.regions = "light grey")
+mapView(Gage_data_join_sf, zcol = "gage_ht", layer.name = "Magnitude of Gage Height") + mapView(NE_counties_sf, col.regions = "light grey", layer.name = "Counties")
 
 ```
 
@@ -210,6 +210,6 @@ Lancaster_county <- NE_counties_utm %>%
 Lancaster_intersect <- Gage_data_utm[Lancaster_county,]
 
 #24. Plot
-mapView(Lancaster_intersect, col.regions = "red") + mapView(Lancaster_county, col.regions = "blue") + mapView(NE_counties_utm, col.regions = "light yellow")
+mapView(Lancaster_intersect, col.regions = "red", layer.name = "Gage Sites") + mapView(Lancaster_county, col.regions = "blue", layer.name = "Lancaster County") + mapView(NE_counties_utm, col.regions = "light yellow", layer.name = "Counties")
 
 ```
