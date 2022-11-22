@@ -4,7 +4,7 @@ author: "Kelly Davidson"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 ---
 
 ## OVERVIEW
@@ -33,9 +33,10 @@ getwd() #checking working directory
 library(tidyverse) #loading necessary packages
 library(lubridate)
 library(rvest)
+library(cowplot)
 
 A10_theme <- #defining and setting my ggplot theme
-  theme_light(base_size = 14) +
+  theme_light(base_size = 10) +
   theme(axis.text = element_text(color = "dark gray"), 
   legend.position = "right")
 theme_set(A10_theme)
@@ -91,7 +92,6 @@ max.withdrawals.mgd <-  Durham_LWSP %>%
 
 ```
 
-
 4. Convert your scraped data into a dataframe. This dataframe should have a column for each of the 4 variables scraped and a row for the month corresponding to the withdrawal data. Also add a Date column that includes your month and year in data format. (Feel free to add a Year column too, if you wish.)
 
 >TIP: Use `rep()` to repeat a value when creating a dataframe.
@@ -118,7 +118,8 @@ Durham_LWSP_df2 <- Durham_LWSP_df %>%
 
 Max_daily_withdrawal_plot <- ggplot(Durham_LWSP_df2, aes(x = Date, y = Max.withdrawals.mgd)) +
   geom_line() +
-  ylab("Maximum Daily Withdrawal (MGD)")
+  labs(title = "Maximum Daily Withdrawls in Durham in 2021",
+  y = "Withdrawal (MGD)")
 print(Max_daily_withdrawal_plot)
 
 ```
@@ -126,57 +127,74 @@ print(Max_daily_withdrawal_plot)
 6. Note that the PWSID and the year appear in the web address for the page we scraped. Construct a function using your code above that can scrape data for any PWSID and year for which the NC DEQ has data. **Be sure to modify the code to reflect the year and site (pwsid) scraped**.
 
 ```{r construct.a.scraping.function}
-#6.
+#6. "https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=03-32-010&year=2021"
 
-scrape.it <- function(pswid, year){
-  
-  Durham_LWSP_url <- read_html(paste0("https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=03-32-010&year=2021", pswid, '/', year))
+scrape.it <- function(Year, PSWID){
+  the_website <- read_html(paste0("https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=", PSWID, "&year=", Year))
   
   water_system_tag <- "div+ table tr:nth-child(1) td:nth-child(2)"
   pswid_tag <- "td tr:nth-child(1) td:nth-child(5)"
   ownership_tag <- "div+ table tr:nth-child(2) td:nth-child(4)"
   max_withdrawals_tag <- "th~ td+ td"
 
-  water_system_name <- Durham_LWSP_url %>% html_node(water_system_tag) %>% html_text()
-  pswid_name <- Durham_LWSP_url %>%  html_node(pswid_tag) %>%  html_text()
-  ownership_name <- Durham_LWSP_url %>%  html_node(ownership_tag) %>%  html_text()
-  max_withdrawals <- Durham_LWSP_url %>%  html_node(max_withdrawals_tag) %>%  html_text()
+  water_system <- the_website %>% html_nodes(water_system_tag) %>% html_text()
+  pswid <- the_website %>%  html_nodes(pswid_tag) %>%  html_text()
+  ownership <- the_website %>%  html_nodes(ownership_tag) %>%  html_text()
+  max_withdrawals <- the_website %>%  html_nodes(max_withdrawals_tag) %>%  html_text()
   
-  the_df <- data.frame("Month" = c("Jan", "May", "Sep", "Feb", "Jun", "Oct", "Mar", "Jul", "Nov", "Apr", "Aug", "Dec"),
-                             "Year" = rep(year, 12),
-                             "Max.withdrawals.mgd" = as.numeric(max.withdrawals.mgd)) %>%
-    mutate(Water.system.name = !!water.system.name,
+  water_df <- data.frame("Month" = c("Jan", "May", "Sep", "Feb", "Jun", "Oct", "Mar", "Jul", "Nov", "Apr", "Aug", "Dec"),
+                             "Year" = rep(Year, 12),
+                             "Max_withdrawals_mgd" = as.numeric(max_withdrawals)) %>%
+    mutate(Water_System = !!water_system,
          PSWID = !!pswid,
          Ownership =!!ownership,
          Date = my(paste(Month,"-",Year))) %>% 
     arrange(ymd(Date))
   
-  return(the_df)
+  return(water_df)
 }
-
-```
-
-```{r test.the.function}
-#Run the function
-the_df <- scrape.it(2018,'0004-0001')
-view(the_df)
-
 
 ```
 
 7. Use the function above to extract and plot max daily withdrawals for Durham (PWSID='03-32-010') for each month in 2015
 
 ```{r fetch.and.plot.Durham.2015.data}
-#7
+#7. 
 
+Durham_withdrawals_2015 <- scrape.it(2015, "03-32-010")
+view(Durham_withdrawals_2015)
+
+Durham_withdrawals_2015_plot <- ggplot(Durham_withdrawals_2015, aes(x = Date, y = Max_withdrawals_mgd)) +
+  geom_line() +
+  labs(title = "Maximum Daily Withdrawls in Durham in 2015",
+  y = "Withdrawal (MGD)")
+print(Durham_withdrawals_2015_plot)
 
 ```
 
 8. Use the function above to extract data for Asheville (PWSID = 01-11-010) in 2015. Combine this data with the Durham data collected above and create a plot that compares Asheville's to Durham's water withdrawals.
 
 ```{r fetch.and.plot.Asheville.2015.data}
-#8
+#8. 
 
+Asheville_withdrawals_2015 <- scrape.it(2015, "01-11-010")
+view(Asheville_withdrawals_2015)
+
+Asheville_withdrawals_2015_plot <- ggplot(Asheville_withdrawals_2015, aes(x = Date, y = Max_withdrawals_mgd)) +
+  geom_line() +
+  labs(title = "Maximum Daily Withdrawls in Asheville in 2015",
+  y = "Withdrawal (MGD)")
+print(Asheville_withdrawals_2015_plot)
+
+
+Ash_Durh_2015 <- rbind(Asheville_withdrawals_2015, Durham_withdrawals_2015)
+
+Ash_Durh_2015_plot <- ggplot(Ash_Durh_2015, aes(x = Date, y = Max_withdrawals_mgd), color = Water_System) +
+  geom_line()
+print(Ash_Durh_2015_plot)
+
+
+plot_grid(Durham_withdrawals_2015_plot, Asheville_withdrawals_2015_plot, nrow = 2, align = 'h', rel_heights = c(1.25, 1))
 
 ```
 
