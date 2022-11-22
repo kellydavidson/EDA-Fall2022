@@ -4,7 +4,7 @@ author: "Kelly Davidson"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 ## OVERVIEW
@@ -52,7 +52,6 @@ Indicate this website as the as the URL to be scraped. (In other words, read the
 
 ```{r set.the.scraping.website}
 #2. Indicating the NC DEQs Local Water Supply Planning URL to be scraped
-
 Durham_LWSP <- read_html("https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=03-32-010&year=2021")
 
 ```
@@ -73,20 +72,19 @@ In the code chunk below scrape these values, assigning them to four separate var
 
 ```{r scrape.the.data}
 #3. Scraping the data (Water System Name, PSWID, Ownership, and Maximum Daily Use) from the URL
-
-water.system.name <- Durham_LWSP %>% 
+water.system.name <- Durham_LWSP %>%  #assigning water system name
   html_nodes("div+ table tr:nth-child(1) td:nth-child(2)") %>% 
   html_text()
   
-pswid <- Durham_LWSP %>% 
+pswid <- Durham_LWSP %>%   #assigning PWSID
   html_nodes("td tr:nth-child(1) td:nth-child(5)") %>% 
   html_text()
   
-ownership <- Durham_LWSP %>% 
+ownership <- Durham_LWSP %>%   #assigning ownership
   html_nodes("div+ table tr:nth-child(2) td:nth-child(4)") %>% 
   html_text()
   
-max.withdrawals.mgd <-  Durham_LWSP %>% 
+max.withdrawals.mgd <-  Durham_LWSP %>%  #assigning maximum daily use
   html_nodes("th~ td+ td") %>% 
   html_text()
 
@@ -102,24 +100,27 @@ max.withdrawals.mgd <-  Durham_LWSP %>%
 
 ```{r create.a.dataframe.from.scraped.data}
 #4. Converting the scraped data into a dataframe
+Durham_LWSP_df <- data.frame("Month" = c("Jan", "May", "Sep", 
+                                         "Feb", "Jun", "Oct", 
+                                         "Mar", "Jul", "Nov", 
+                                         "Apr", "Aug", "Dec"), 
+                             #creating a month column
+                             "Year" = rep(2021), #creaing a year column
+                             "Max.withdrawals.mgd" = as.numeric(max.withdrawals.mgd)) 
+#creating the maximum daily withdrawal column
 
-Durham_LWSP_df <- data.frame("Month" = c("Jan", "May", "Sep", "Feb", "Jun", "Oct", "Mar", "Jul", "Nov", "Apr", "Aug", "Dec"),
-                             "Year" = rep(2021),
-                             "Max.withdrawals.mgd" = as.numeric(max.withdrawals.mgd))
-
-Durham_LWSP_df2 <- Durham_LWSP_df %>% 
-  mutate(Water.system.name = !!water.system.name,
-         PSWID = !!pswid,
-         Ownership =!!ownership,
-         Date = my(paste(Month,"-",Year))) %>% 
+Durham_LWSP_df2 <- Durham_LWSP_df %>%  #wrangling the dataframe
+  mutate(Water.system.name = !!water.system.name, #assigning water system name column
+         PSWID = !!pswid,  #assigning PSWID column
+         Ownership =!!ownership, #assigning ownership column
+         Date = my(paste(Month,"-",Year))) %>%  #creating a date column
   arrange(ymd(Date))
 
 #5. Graphing a line plot of the maximum daily withdrawals for 2021
-
 Max_daily_withdrawal_plot <- ggplot(Durham_LWSP_df2, aes(x = Date, y = Max.withdrawals.mgd)) +
-  geom_line() +
-  labs(title = "Maximum Daily Withdrawls in Durham in 2021",
-  y = "Withdrawal (MGD)")
+  geom_line() + #specifying line plot
+  labs(title = "Maximum Daily Withdrawls in Durham in 2021", #assigning a title
+  y = "Withdrawal (MGD)") #renaming the y-axis
 print(Max_daily_withdrawal_plot)
 
 ```
@@ -127,22 +128,28 @@ print(Max_daily_withdrawal_plot)
 6. Note that the PWSID and the year appear in the web address for the page we scraped. Construct a function using your code above that can scrape data for any PWSID and year for which the NC DEQ has data. **Be sure to modify the code to reflect the year and site (pwsid) scraped**.
 
 ```{r construct.a.scraping.function}
-#6. "https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=03-32-010&year=2021"
-
+#6. Constructing a scrape function
 scrape.it <- function(Year, PSWID){
-  the_website <- read_html(paste0("https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=", PSWID, "&year=", Year))
+  the_website <- read_html(paste0("https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=", 
+                                  PSWID, "&year=", Year)) #retrieving the website contents
   
+  #setting the element address variables
   water_system_tag <- "div+ table tr:nth-child(1) td:nth-child(2)"
   pswid_tag <- "td tr:nth-child(1) td:nth-child(5)"
   ownership_tag <- "div+ table tr:nth-child(2) td:nth-child(4)"
   max_withdrawals_tag <- "th~ td+ td"
 
+  #scraping the data items
   water_system <- the_website %>% html_nodes(water_system_tag) %>% html_text()
   pswid <- the_website %>%  html_nodes(pswid_tag) %>%  html_text()
   ownership <- the_website %>%  html_nodes(ownership_tag) %>%  html_text()
   max_withdrawals <- the_website %>%  html_nodes(max_withdrawals_tag) %>%  html_text()
   
-  water_df <- data.frame("Month" = c("Jan", "May", "Sep", "Feb", "Jun", "Oct", "Mar", "Jul", "Nov", "Apr", "Aug", "Dec"),
+  #converting to a dataframe
+  water_df <- data.frame("Month" = c("Jan", "May", "Sep", 
+                                     "Feb", "Jun", "Oct", 
+                                     "Mar", "Jul", "Nov", 
+                                     "Apr", "Aug", "Dec"),
                              "Year" = rep(Year, 12),
                              "Max_withdrawals_mgd" = as.numeric(max_withdrawals)) %>%
     mutate(Water_System = !!water_system,
@@ -151,7 +158,7 @@ scrape.it <- function(Year, PSWID){
          Date = my(paste(Month,"-",Year))) %>% 
     arrange(ymd(Date))
   
-  return(water_df)
+  return(water_df) #return the dataframe
 }
 
 ```
@@ -159,15 +166,16 @@ scrape.it <- function(Year, PSWID){
 7. Use the function above to extract and plot max daily withdrawals for Durham (PWSID='03-32-010') for each month in 2015
 
 ```{r fetch.and.plot.Durham.2015.data}
-#7. 
-
-Durham_withdrawals_2015 <- scrape.it(2015, "03-32-010")
+#7. Extracting maximum daily withdrawals for Durham in 2015 using the scrape function
+Durham_withdrawals_2015 <- scrape.it(2015, "03-32-010") #utilizing the scrape function
 view(Durham_withdrawals_2015)
 
-Durham_withdrawals_2015_plot <- ggplot(Durham_withdrawals_2015, aes(x = Date, y = Max_withdrawals_mgd)) +
-  geom_line() +
-  labs(title = "Maximum Daily Withdrawls in Durham in 2015",
-  y = "Withdrawal (MGD)")
+#plotting maximum daily withdrawals for Durham in 2015
+Durham_withdrawals_2015_plot <- 
+  ggplot(Durham_withdrawals_2015, aes(x = Date, y = Max_withdrawals_mgd)) +
+  geom_line() + #specifying line plot
+  labs(title = "Maximum Daily Withdrawls in Durham in 2015", #assigning a title
+  y = "Withdrawal (MGD)") #renaming the y-axis
 print(Durham_withdrawals_2015_plot)
 
 ```
@@ -175,38 +183,45 @@ print(Durham_withdrawals_2015_plot)
 8. Use the function above to extract data for Asheville (PWSID = 01-11-010) in 2015. Combine this data with the Durham data collected above and create a plot that compares Asheville's to Durham's water withdrawals.
 
 ```{r fetch.and.plot.Asheville.2015.data}
-#8. 
-
-Asheville_withdrawals_2015 <- scrape.it(2015, "01-11-010")
+#8. Extracting maximum daily withdrawals for Asheville in 2015 using the scrape function
+Asheville_withdrawals_2015 <- scrape.it(2015, "01-11-010") #utilizing the scrape function
 view(Asheville_withdrawals_2015)
 
-Asheville_withdrawals_2015_plot <- ggplot(Asheville_withdrawals_2015, aes(x = Date, y = Max_withdrawals_mgd)) +
-  geom_line() +
-  labs(title = "Maximum Daily Withdrawls in Asheville in 2015",
-  y = "Withdrawal (MGD)")
-print(Asheville_withdrawals_2015_plot)
-
-
-Ash_Durh_2015 <- rbind(Asheville_withdrawals_2015, Durham_withdrawals_2015)
-
-Ash_Durh_2015_plot <- ggplot(Ash_Durh_2015, aes(x = Date, y = Max_withdrawals_mgd), color = Water_System) +
-  geom_line()
+#plotting maximum daily withdrawals for Durham and Asheville in 2015
+Ash_Durh_2015_plot <- ggplot() +
+  geom_line(data = Asheville_withdrawals_2015, 
+            aes(x = Date, y = Max_withdrawals_mgd, color = "Asheville")) +  #specifying line plot
+  geom_line(data = Durham_withdrawals_2015, 
+            aes(x = Date, y = Max_withdrawals_mgd, color = "Durham")) + #specifying line plot
+  labs(title = "Maximum Daily Withdrawls in Asheville and Durham in 2015", #assigning a title
+  y = "Withdrawal (MGD)") #renaming the y-axis
 print(Ash_Durh_2015_plot)
 
-
-plot_grid(Durham_withdrawals_2015_plot, Asheville_withdrawals_2015_plot, nrow = 2, align = 'h', rel_heights = c(1.25, 1))
-
 ```
-
 
 9. Use the code & function you created above to plot Asheville's max daily withdrawal by months for the years 2010 thru 2019.Add a smoothed line to the plot.
 
 >TIP: See Section 3.2 in the "09_Data_Scraping.Rmd" where we apply "map2()" to iteratively run a function over two inputs. Pipe the output of the map2() function to `bindrows()` to combine the dataframes into a single one. 
 
 ```{r fetch.and.plot.Asheville.multiyear.data}
-#9
+#9. Extracting maximum daily withdrawals for Asheville from 2010-2019 using the scrape function
+Asheville_years <- rep(2010:2019) #creating a list of the years 2010-2019
+Asheville_PSWID <- rep.int("01-11-010", length(Asheville_years)) #creating a list of the PSWID
 
+#using map2 and scrape function to retrieve data from 2010-2019
+Asheville_2010_2019 <- map2(Asheville_years, Asheville_PSWID, scrape.it)
+
+#joining the returned list of dataframes into a single one
+Asheville_complete <- bind_rows(Asheville_2010_2019)
+
+#plotting maximum daily withdrawals for Asheville from 2010-2019
+Asheville_complete_plot <- ggplot(Asheville_complete, aes(x = Date, y = Max_withdrawals_mgd))  +
+  geom_line()  + #specifying line plot
+  geom_smooth(method="loess",se=FALSE) + #adding a smoothed trendline
+  labs(title = "Maximum Daily Withdrawls in Asheville from 2010 to 2019", #assigning a title
+  y = "Withdrawal (MGD)") #renaming the y-axis
+print(Asheville_complete_plot)
 
 ```
 
->Question: Just by looking at the plot (i.e. not running statistics), does Asheville have a trend in water usage over time?
+>Question: Just by looking at the plot (i.e. not running statistics), does Asheville have a trend in water usage over time? Yes, it appears there is an increasing trend of maximum daily withdrawls in Asheville from 2010 to 2019.
